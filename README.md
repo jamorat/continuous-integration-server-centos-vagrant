@@ -1,2 +1,2 @@
-continuous-integration-server-centos
+continuous-integration-server-centos-vagrant
 ====================================
