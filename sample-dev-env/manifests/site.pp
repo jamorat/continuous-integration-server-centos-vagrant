@@ -71,6 +71,12 @@ service { "mysqld":
     enable => true,
     ensure => running,
     require => Package["mysql-server"],
+    before => Exec["wait-for-mysqld"]
+}
+
+exec {"wait-for-mysqld":
+  require => Service["mysqld"],
+  command => "/usr/bin/mysql -u root --password= -e \"create database wp_test_database;grant all on wp_test_database.* to 'wptestuser'@'localhost' identified by 'vagrant';\"",
 }
 
 package { "php-mysql":
