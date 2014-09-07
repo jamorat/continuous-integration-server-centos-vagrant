@@ -67,6 +67,12 @@ package { "mysql-server":
   require => Package["httpd"],
 }
 
+service { "mysqld":
+    enable => true,
+    ensure => running,
+    require => Package["mysql-server"],
+}
+
 package { "php-mysql":
   ensure => "installed",
   require => Package["mysql-server"],
@@ -76,5 +82,3 @@ package { "php-cli":
   ensure => "installed",
   require => Package["php-mysql"],
 }
-
-
