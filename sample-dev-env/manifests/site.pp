@@ -88,3 +88,34 @@ package { "php-cli":
   ensure => "installed",
   require => Package["php-mysql"],
 }
+
+package { "mod_dav_svn":
+  ensure => "installed",
+  require => Package["php-cli"]
+}
+
+file { "/home/vagrant/svn":
+    ensure => "directory"
+}
+
+file { "/home/vagrant/svn/wordpress-dev":
+    ensure => "directory"
+}
+
+exec {"checkout-svn-wordpress-test":
+  command => "/usr/bin/svn co http://develop.svn.wordpress.org/trunk/",
+  cwd => "/home/vagrant/svn/wordpress-dev/",
+  before => Exec["copy-wp-tests-config-sample"]
+}
+
+exec {"copy-wp-tests-config-sample":
+  command => "/bin/cp wp-tests-config-sample.php wp-tests-config.php",
+  cwd => "/home/vagrant/svn/wordpress-dev/trunk",
+  before => Exec["configure-wp-tests-config-sample"]
+}
+
+exec {"configure-wp-tests-config-sample":
+  command => "/bin/sed -i 's%youremptytestdbnamehere%wp_test_database%g' wp-tests-config.php && sudo sed -i 's%yourusernamehere%wptestuser%g' wp-tests-config.php && sudo sed -i 's%yourpasswordhere%vagrant%g' wp-tests-config.php",
+  cwd => "/home/vagrant/svn/wordpress-dev/trunk"
+}
+
