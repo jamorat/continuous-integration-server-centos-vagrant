@@ -62,6 +62,16 @@ exec{'run_phpunit_phar_commands':
   cwd => "/usr/bin",
 }
 
+package { "php-mysql":
+  ensure => "installed",
+  require => Exec["run_phpunit_phar_commands"],
+}
+
+package { "php":
+  ensure => "installed",
+  require => Exec["run_phpunit_phar_commands"],
+}
+
 package { "mysql-server":
   ensure => "installed",
   require => Package["httpd"],
@@ -77,11 +87,6 @@ service { "mysqld":
 exec {"wait-for-mysqld":
   require => Service["mysqld"],
   command => "/usr/bin/mysql -u root --password= -e \"create database wp_test_database;grant all on wp_test_database.* to 'wptestuser'@'localhost' identified by 'vagrant';\"",
-}
-
-package { "php-mysql":
-  ensure => "installed",
-  require => Package["mysql-server"],
 }
 
 package { "php-cli":
@@ -115,7 +120,14 @@ exec {"copy-wp-tests-config-sample":
 }
 
 exec {"configure-wp-tests-config-sample":
-  command => "/bin/sed -i 's%youremptytestdbnamehere%wp_test_database%g' wp-tests-config.php && sudo sed -i 's%yourusernamehere%wptestuser%g' wp-tests-config.php && sudo sed -i 's%yourpasswordhere%vagrant%g' wp-tests-config.php",
-  cwd => "/home/vagrant/svn/wordpress-dev/trunk"
+  command => "/bin/sed -i 's%youremptytestdbnamehere%wp_test_database%g' wp-tests-config.php && sudo sed -i 's%yourusernamehere%wptestuser%g' wp-tests-config.php && sudo sed -i 's%yourpasswordhere%vagrant%g' wp-tests-config.php && svn up",
+  cwd => "/home/vagrant/svn/wordpress-dev/trunk",
+  before => Package["php-xml"]
 }
+
+package { "php-xml":
+  ensure => "installed",
+  require => Exec["configure-wp-tests-config-sample"]
+}
+
 
