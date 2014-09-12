@@ -20,9 +20,9 @@ exec{'download_latest_wordpress':
 }
 
 exec {'unpack_latest.tar.gz':
-  command => "tar xf /var/www/html/latest.tar.gz",
+  command => "/usr/bin/sudo tar xf /var/www/html/latest.tar.gz && /bin/chown -R vagrant:apache wordpress && /bin/chmod -R 775 wordpress",
   cwd => "/var/www/html",
-  path => "/bin",
+  path => "/bin"
 }
 
 package { "java-1.6.0-openjdk":
@@ -120,7 +120,7 @@ exec {"copy-wp-tests-config-sample":
 }
 
 exec {"configure-wp-tests-config-sample":
-  command => "/bin/sed -i 's%youremptytestdbnamehere%wp_test_database%g' wp-tests-config.php && sudo sed -i 's%yourusernamehere%wptestuser%g' wp-tests-config.php && sudo sed -i 's%yourpasswordhere%vagrant%g' wp-tests-config.php && svn up",
+  command => "/bin/sed -i 's%youremptytestdbnamehere%wp_test_database%g' wp-tests-config.php && sudo sed -i 's%yourusernamehere%wptestuser%g' wp-tests-config.php && sudo sed -i 's%yourpasswordhere%vagrant%g' wp-tests-config.php && sudo sed -i \"s%dirname( __FILE__ ) . '/src/'%'/var/www/html/wordpress/'%g\" wp-tests-config.php && svn up",
   cwd => "/home/vagrant/svn/wordpress-dev/trunk",
   before => Package["php-xml"]
 }
